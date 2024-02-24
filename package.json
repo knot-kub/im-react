@@ -14,6 +14,7 @@
     "next-auth": "^4.24.6",
     "react": "^18",
     "react-dom": "^18",
+    "serializr": "^3.0.2",
     "zustand": "^4.5.1"
   },
   "devDependencies": {
