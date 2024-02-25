@@ -17,7 +17,6 @@
     "react": "^18",
     "react-dom": "^18",
     "serializr": "^3.0.2",
-    "tw-elements-react": "^1.0.0-alpha2",
     "zustand": "^4.5.1"
   },
   "devDependencies": {
