@@ -1,17 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useTodo } from "@/hooks/useTodo";
-import React, { useMemo, useState } from "react";
-import {
-  TERipple,
-  TEModal,
-  TEModalDialog,
-  TEModalContent,
-  TEModalHeader,
-  TEModalBody,
-  TEModalFooter,
-} from "tw-elements-react";
+import { useTodo } from '@/hooks/useTodo'
+import React, { useMemo } from 'react'
 
 export default function Home() {
   
@@ -158,56 +149,58 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <TEModal show={showModal} setShow={setShowModal}>
-        <TEModalDialog size="sm" centered={true}>
-          <TEModalContent>
-            <TEModalHeader>
-              {/* <!--Modal title--> */}
-              <h5 className="text-xl font-medium leading-normal text-neutral-800 dark:text-neutral-200">
-                Delete
-              </h5>
-              {/* <!--Close button--> */}
-              <button
-                type="button"
-                className="box-content text-gray-800 rounded-none border-none hover:no-underline hover:opacity-75 focus:opacity-100 focus:shadow-none focus:outline-none"
-                onClick={() => setShowModal(false)}
-                aria-label="Close"
-              >
-                X
-              </button>
-            </TEModalHeader>
-            {/* <!--Modal body--> */}
-            <TEModalBody>
-              <div className="text-gray-800">
-                Are you sure you want to delete?
+      {showModal ? (
+        <>
+          <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
+            <div className="relative w-auto my-6 mx-auto max-w-3xl">
+              {/*content*/}
+              <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
+                {/*header*/}
+                <div className="flex items-start justify-between p-5 border-b border-solid border-blueGray-200 rounded-t">
+                  <h5 className="text-xl font-medium leading-normal text-black">
+                    Delete
+                  </h5>
+                  <button
+                    className="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
+                    onClick={() => setShowModal(false)}
+                  >
+                    <span className="bg-transparent text-black opacity-5 h-6 w-6 text-2xl block outline-none focus:outline-none">
+                      ×
+                    </span>
+                  </button>
+                </div>
+                {/*body*/}
+                <div className="relative p-6 flex-auto">
+                  <p className="my-4 text-gray-800 text-lg">
+                  Are you sure you want to delete?
+                  </p>
+                </div>
+                {/*footer*/}
+                <div className="flex items-center justify-between p-6 border-t border-solid border-blueGray-200 rounded-b">
+                  <button
+                    className="bg-gray-100 text-blue-400 active:bg-gray-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                  >
+                    CANCEL
+                  </button>
+                  <button
+                    className="bg-red-400 text-white active:bg-red-800 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    type="button"
+                    onClick={() => {
+                      onDelete();
+                      setShowModal(false);
+                    }}
+                  >
+                    DELETE
+                  </button>
+                </div>
               </div>
-            </TEModalBody>
-            <TEModalFooter className="flex justify-between">
-              <TERipple rippleColor="light">
-                <button
-                  type="button"
-                  className="inline-block rounded bg-primary-100 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-primary-700 transition duration-150 ease-in-out hover:bg-primary-accent-100 focus:bg-primary-accent-100 focus:outline-none focus:ring-0 active:bg-primary-accent-200"
-                  onClick={() => setShowModal(false)}
-                >
-                  CANCEL
-                </button>
-              </TERipple>
-              <TERipple rippleColor="light">
-                <button
-                  type="button"
-                  className="inline-block rounded bg-danger px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#fca5a5] transition duration-150 ease-in-out hover:bg-red-600 hover:shadow-[0_8px_9px_-4px_rgba(255, 99, 71, 0.5),0_4px_18px_0_rgba(255, 99, 71, 0.5)] focus:bg-red-600 focus:shadow-[0_8px_9px_-4px_rgba(255, 99, 71, 0.5),0_4px_18px_0_rgba(248 113 113,0.2)] focus:outline-none focus:ring-0 active:bg-red-700 active:shadow-[0_8px_9px_-4px_rgba(255, 99, 71, 0.5),0_4px_18px_0_rgba(255, 99, 71, 0.5)]"
-                  onClick={() => {
-                    onDelete()
-                    setShowModal(false)
-                  }}
-                >
-                  DELETE
-                </button>
-              </TERipple>
-            </TEModalFooter>
-          </TEModalContent>
-        </TEModalDialog>
-      </TEModal>
+            </div>
+          </div>
+          <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
+        </>
+      ) : null}
     </>
   );
 }
