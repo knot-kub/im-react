@@ -10,14 +10,19 @@
   },
   "dependencies": {
     "axios": "^1.6.7",
+    "lodash": "^4.17.21",
+    "luxon": "^3.4.4",
     "next": "14.1.0",
     "next-auth": "^4.24.6",
     "react": "^18",
     "react-dom": "^18",
     "serializr": "^3.0.2",
+    "tw-elements-react": "^1.0.0-alpha2",
     "zustand": "^4.5.1"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.202",
+    "@types/luxon": "^3.4.2",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

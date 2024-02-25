@@ -1,5 +1,7 @@
 import { date, serializable } from "serializr"
 
+export type TodoStatus = 'TODO' | 'DOING' | 'DONE'
+
 export class Todo {
   @serializable
   id!: string
@@ -11,7 +13,7 @@ export class Todo {
   description!: string
 
   @serializable
-  status!: string
+  status!: TodoStatus
 
   @serializable(date())
   createdAt!: Date

@@ -1,120 +1,200 @@
-'use client'
+/* eslint-disable @next/next/no-img-element */
+"use client";
 
 import { useTodo } from "@/hooks/useTodo";
-import Image from "next/image";
+import React, { useMemo, useState } from "react";
+import {
+  TERipple,
+  TEModal,
+  TEModalDialog,
+  TEModalContent,
+  TEModalHeader,
+  TEModalBody,
+  TEModalFooter,
+} from "tw-elements-react";
 
-const Home = () => {
-  useTodo()
+export default function Home() {
+  
+  const { 
+    currentStatus,
+    groupTodo,
+    onChangeStatus,
+    setDeleteId,
+    modalState: [showModal, setShowModal],
+    onDelete,
+  } = useTodo()
+
+  const StatusSelection = useMemo(() => {
+    const inactive = "cursor-pointer inline-block w-full my-3 p-2 text-gray-400 font-bold rounded-full"
+    const active = "text-white bg-gradient-to-r from-blue-300 to-indigo-400 " + inactive
+    return <>
+    <div className="absolute bottom-(10) left-0 w-full px-8 ">
+      <ul className="text-md leading-4 font-medium text-center flex justify-around rounded-full bg-gray-100 px-3">
+        <li className="w-1/3">
+          <div
+            className={currentStatus === 'TODO' ? active : inactive} 
+            aria-current="page"
+            onClick={() => onChangeStatus('TODO')}
+          >
+            To-do
+          </div>
+        </li>
+        <li className="w-1/3">
+          <div
+            className={currentStatus === 'DOING' ? active : inactive}
+            aria-current="page"
+            onClick={() => onChangeStatus('DOING')}
+          >
+            Doing
+          </div>
+        </li>
+        <li className="w-1/3">
+          <div
+            className={currentStatus === 'DONE' ? active : inactive}
+            aria-current="page"
+            onClick={() => onChangeStatus('DONE')}
+          >
+            Done
+          </div>
+        </li>
+      </ul>
+    </div>
+  </>
+  }, [currentStatus])
+
+  const Trash = () => {
+    return (
+      <svg
+        className="h-6 w-6 text-gray-500"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <polyline points="3 6 5 6 21 6" />{" "}
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />{" "}
+        <line x1="10" y1="11" x2="10" y2="17" />{" "}
+        <line x1="14" y1="11" x2="14" y2="17" />
+      </svg>
+    );
+  };
+
+  const TodoList = useMemo(() => {
+    const list = Object.keys(groupTodo).map((key) => {
+      return <div className="flex flex-col px-8 py-2" id="#todo" key={key}>
+        <div className="flex text-gray-900 py-2 font-bold">{key}</div>
+        {groupTodo[key].map((todo) => <div className="flex justify-between" key={todo.id}>
+          <div className="flex">
+            <img
+              className="self-center h-10 w-10 rounded-lg"
+              src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+              alt="avatar"
+            />
+            <div className="flex-col self-center ps-2">
+              <div className="text-gray-900 font-bold">{todo.title}</div>
+              <div className="text-gray-500">{todo.description}</div>
+            </div>
+          </div>
+          <div className="self-center">
+            <button
+              className="border-none"
+              data-modal-target="popup-modal"
+              data-modal-toggle="popup-modal"
+              type="button"
+              onClick={() => {
+                setDeleteId(todo.id)
+                setShowModal(true)
+              }}
+            >
+              <Trash/>
+            </button>
+          </div>
+        </div>
+        )}
+      </div>
+    })
+    return list
+  }, [groupTodo])
+
+  
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <>
+      <div className="bg-indigo-400 h-screen px-5 py-8">
+        <div className="bg-white h-full rounded-lg overflow-hidden">
+          <div className="bg-indigo-100 rounded-lg px-3 py-6 relative">
+            <div className="flex justify-end">
+              <img
+                className="inline-block h-10 w-10 rounded-full"
+                src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                alt="avartar"
+              />
+            </div>
+            <div className="flex-col ps-5 text-gray-500 font-bold pb-10">
+              <h1>Hi! User</h1>
+              <h3>This is just a sample UI.</h3>
+              <h3>Open to create your style :D</h3>
+            </div>
+            {StatusSelection}
+          </div>
+          <div className="mt-12" />
+          <div className="overflow-y-scroll">
+            {TodoList}
+          </div>
         </div>
       </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+      <TEModal show={showModal} setShow={setShowModal}>
+        <TEModalDialog size="sm" centered={true}>
+          <TEModalContent>
+            <TEModalHeader>
+              {/* <!--Modal title--> */}
+              <h5 className="text-xl font-medium leading-normal text-neutral-800 dark:text-neutral-200">
+                Delete
+              </h5>
+              {/* <!--Close button--> */}
+              <button
+                type="button"
+                className="box-content text-gray-800 rounded-none border-none hover:no-underline hover:opacity-75 focus:opacity-100 focus:shadow-none focus:outline-none"
+                onClick={() => setShowModal(false)}
+                aria-label="Close"
+              >
+                X
+              </button>
+            </TEModalHeader>
+            {/* <!--Modal body--> */}
+            <TEModalBody>
+              <div className="text-gray-800">
+                Are you sure you want to delete?
+              </div>
+            </TEModalBody>
+            <TEModalFooter className="flex justify-between">
+              <TERipple rippleColor="light">
+                <button
+                  type="button"
+                  className="inline-block rounded bg-primary-100 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-primary-700 transition duration-150 ease-in-out hover:bg-primary-accent-100 focus:bg-primary-accent-100 focus:outline-none focus:ring-0 active:bg-primary-accent-200"
+                  onClick={() => setShowModal(false)}
+                >
+                  CANCEL
+                </button>
+              </TERipple>
+              <TERipple rippleColor="light">
+                <button
+                  type="button"
+                  className="inline-block rounded bg-danger px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#fca5a5] transition duration-150 ease-in-out hover:bg-red-600 hover:shadow-[0_8px_9px_-4px_rgba(255, 99, 71, 0.5),0_4px_18px_0_rgba(255, 99, 71, 0.5)] focus:bg-red-600 focus:shadow-[0_8px_9px_-4px_rgba(255, 99, 71, 0.5),0_4px_18px_0_rgba(248 113 113,0.2)] focus:outline-none focus:ring-0 active:bg-red-700 active:shadow-[0_8px_9px_-4px_rgba(255, 99, 71, 0.5),0_4px_18px_0_rgba(255, 99, 71, 0.5)]"
+                  onClick={() => {
+                    onDelete()
+                    setShowModal(false)
+                  }}
+                >
+                  DELETE
+                </button>
+              </TERipple>
+            </TEModalFooter>
+          </TEModalContent>
+        </TEModalDialog>
+      </TEModal>
+    </>
   );
 }
-
-export default Home

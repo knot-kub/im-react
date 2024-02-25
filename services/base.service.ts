@@ -1,4 +1,11 @@
-import { deserialize } from "serializr";
+import { deserialize } from 'serializr'
+
+export interface BasicParams {
+  offset?: number
+  limit?: number
+  sortBy?: string
+  isAsc?: boolean
+}
 
 export class BaseService {
   protected handleResponse<T>(c: new () => T, json: any): T {
