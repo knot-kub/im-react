@@ -43,7 +43,7 @@ export const todoStore = createWithEqualityFn<todoState>()(
           }
         })
         for (const [name, todoList] of Object.entries(groupTodoList)) {
-          groupTodoList[name] = todoList.sort((a, b) => (b.createdAt.getTime() - a.createdAt.getTime()))
+          groupTodoList[name] = todoList.sort((a, b) => (a.createdAt.getTime() - b.createdAt.getTime()))
         }
         return groupTodoList
       },
@@ -60,6 +60,9 @@ export const todoStore = createWithEqualityFn<todoState>()(
       fetchNext: async () => {
         const todoService = HttpClient.instance.todo
         const { currentStatus, pagination, connection, todoList } = get()
+        if (!pagination.canFetchNext) {
+          return
+        }
         const params = pagination.toParams()
         try {
           connection.loading = true

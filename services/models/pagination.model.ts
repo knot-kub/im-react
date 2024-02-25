@@ -12,6 +12,13 @@ export class Pagination {
   }
 
   public toParams(): BasicParams {
-    return { offset: (this.page - 1) * this.pageSize, limit: this.pageSize }
+    return { offset: this.page - 1, limit: this.pageSize }
+  }
+
+  public get canFetchNext(): boolean {
+    if (this.totalPages === 0 && this.page === 1) {
+      return true
+    }
+    return this.page - 1 < this.totalPages
   }
 }

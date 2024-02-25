@@ -22,6 +22,8 @@ export default function Home() {
     setDeleteId,
     modalState: [showModal, setShowModal],
     onDelete,
+    observerTarget,
+    connection,
   } = useTodo()
 
   const StatusSelection = useMemo(() => {
@@ -78,23 +80,33 @@ export default function Home() {
         <line x1="10" y1="11" x2="10" y2="17" />{" "}
         <line x1="14" y1="11" x2="14" y2="17" />
       </svg>
-    );
-  };
+    )
+  }
+
+  const Loading = useMemo(() => {
+    return <div className="flex justify-center"><div
+      className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] text-primary motion-reduce:animate-[spin_1.5s_linear_infinite]"
+      role="status">
+      <span
+        className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+      >Loading...</span>
+    </div></div>
+  }, [])
 
   const TodoList = useMemo(() => {
     const list = Object.keys(groupTodo).map((key) => {
-      return <div className="flex flex-col px-8 py-2" id="#todo" key={key}>
+      return <div className="flex flex-col px-8 pb-4" id="#todo" key={key}>
         <div className="flex text-gray-900 py-2 font-bold">{key}</div>
-        {groupTodo[key].map((todo) => <div className="flex justify-between" key={todo.id}>
+        {groupTodo[key].map((todo) => <div className="flex justify-between pb-2.5" key={todo.id}>
           <div className="flex">
             <img
-              className="self-center h-10 w-10 rounded-lg"
-              src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+              className="self-start h-10 w-10 rounded-lg mt-1 mr-2"
+              src="https://w7.pngwing.com/pngs/670/265/png-transparent-checkmark-done-exam-list-pencil-todo-xomo-basics-icon-thumbnail.png"
               alt="avatar"
             />
-            <div className="flex-col self-center ps-2">
+            <div className="flex-col self-start ps-2 pr-3">
               <div className="text-gray-900 font-bold">{todo.title}</div>
-              <div className="text-gray-500">{todo.description}</div>
+              <div className="text-gray-500 text-sm">{todo.description}</div>
             </div>
           </div>
           <div className="self-center">
@@ -115,21 +127,23 @@ export default function Home() {
         )}
       </div>
     })
-    return list
-  }, [groupTodo])
-
-  
+    return <>
+      {list}
+      <div ref={observerTarget}></div>
+      {connection.loading && Loading}
+    </>
+  }, [groupTodo, connection.loading])
 
   return (
     <>
       <div className="bg-indigo-400 h-screen px-5 py-8">
-        <div className="bg-white h-full rounded-lg overflow-hidden">
-          <div className="bg-indigo-100 rounded-lg px-3 py-6 relative">
+        <div className="bg-white h-full rounded-lg overflow-hidden flex flex-col">
+          <div className="bg-indigo-100 rounded-lg px-3 py-6 mb-12">
             <div className="flex justify-end">
               <img
                 className="inline-block h-10 w-10 rounded-full"
                 src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                alt="avartar"
+                alt="avatar"
               />
             </div>
             <div className="flex-col ps-5 text-gray-500 font-bold pb-10">
@@ -139,8 +153,7 @@ export default function Home() {
             </div>
             {StatusSelection}
           </div>
-          <div className="mt-12" />
-          <div className="overflow-y-scroll">
+          <div className="overflow-y-scroll h-full pb-6">
             {TodoList}
           </div>
         </div>
