@@ -1,5 +1,6 @@
 import { TodoStatus } from "@/services/models"
-import { todoStore } from "@/stores"
+import { authStore, todoStore } from "@/stores"
+import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { shallow } from "zustand/shallow"
 
@@ -11,8 +12,8 @@ export const useTodo = () => {
     getTodoGroup,
     currentStatus,
     deleteOne,
-    connection,
     pagination,
+    isLoading,
   } = todoStore(state => ({
     fetchNext: state.fetchNext,
     todoList: state.todoList,
@@ -20,9 +21,17 @@ export const useTodo = () => {
     getTodoGroup: state.getTodoGroup,
     currentStatus: state.currentStatus,
     deleteOne: state.deleteOne,
-    connection: state.connection,
     pagination: state.pagination,
+    isLoading: state.isLoading,
   }), shallow)
+
+  const { verify, getProfile, logout } = authStore(state => ({
+    verify: state.verify,
+    getProfile: state.getProfile,
+    logout: state.logout,
+  }), shallow)
+
+  const router = useRouter()
 
   const [deleteId, setDeleteId] = useState('')
   const modalState = useState(false)
@@ -43,7 +52,11 @@ export const useTodo = () => {
   }
 
   useEffect(() => {
-    fetchNext()
+    if (!verify()) {
+      router.replace('/login')
+    } else {
+      fetchNewStatus('TODO')
+    }
   }, [])
 
   useEffect(() => {
@@ -56,14 +69,13 @@ export const useTodo = () => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       entries => {
-        const isFetchingPageOne = connection.loading && pagination.page === 1
+        const isFetchingPageOne = isLoading && pagination.page === 1
 
-        if (entries[0].isIntersecting && !connection.loading && pagination.canFetchNext) {
+        if (entries[0].isIntersecting && !isLoading && pagination.canFetchNext) {
           fetchNext()
         }
 
         if (isFetchingPageOne && entries[0].isIntersecting) {
-          console.log('should fetch more')
           setFetchBuffer(true)
         }
       },
@@ -79,7 +91,12 @@ export const useTodo = () => {
         observer.unobserve(observerTarget.current);
       }
     };
-  }, [observerTarget, pagination, connection]);
+  }, [observerTarget, pagination, isLoading]);
 
-  return { currentStatus, groupTodo, onChangeStatus, setDeleteId, modalState, onDelete, observerTarget, connection }
+  const onLogout = () => {
+    logout()
+    router.replace('/login')
+  }
+
+  return { currentStatus, groupTodo, onChangeStatus, setDeleteId, modalState, onDelete, observerTarget, isLoading, getProfile, onLogout }
 }

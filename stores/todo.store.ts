@@ -5,22 +5,25 @@ import { createWithEqualityFn } from 'zustand/traditional'
 import { groupBy } from 'lodash'
 import { DateTime } from 'luxon'
 
-export interface todoState {
+export interface TodoState {
   currentStatus: TodoStatus
   todoList: Todo[]
   pagination: Pagination
-  connection: Connection
+  isLoading: boolean
+  error: string
   getTodoGroup: () => Record<string, Todo[]>
   fetchNewStatus: (status: TodoStatus) => Promise<void>
   fetchNext: () => Promise<void>
   deleteOne: (id: string) => void
 }
 
-export const todoStore = createWithEqualityFn<todoState>()(
+export const todoStore = createWithEqualityFn<TodoState>()(
   devtools(
     (set, get) => ({
       currentStatus: 'TODO',
       todoList: [],
+      isLoading: false,
+      error: '',
       deleteOne: (id: string) => {
         const { todoList } = get()
         set({ todoList: todoList.filter((todo) => todo.id !== id) })
@@ -50,7 +53,8 @@ export const todoStore = createWithEqualityFn<todoState>()(
       fetchNewStatus: async (status: TodoStatus) => {
         set({ 
           pagination: new Pagination(), 
-          connection: new Connection(), 
+          isLoading: false,
+          error: '', 
           todoList: [], 
           currentStatus: status,
         })
@@ -59,28 +63,24 @@ export const todoStore = createWithEqualityFn<todoState>()(
       },
       fetchNext: async () => {
         const todoService = HttpClient.instance.todo
-        const { currentStatus, pagination, connection, todoList } = get()
+        const { currentStatus, pagination, todoList } = get()
         if (!pagination.canFetchNext) {
           return
         }
         const params = pagination.toParams()
         try {
-          connection.loading = true
-          set({ connection: connection })
+          set({ isLoading: true })
           const { items, total } = await todoService.fetch(currentStatus, { ...params, sortBy: 'createdAt', isAsc: true })
           pagination.page++
           pagination.totalPages = total.totalPages
           set({ todoList: [...todoList, ...items], pagination })
         } catch (error) {
-          connection.error = JSON.stringify(error)
-          set({ connection: connection })
+          set({ error: JSON.stringify(error) })
         } finally {
-          connection.loading = false
-          set({ connection: connection })
+          set({ isLoading: false })
         }
       },
       pagination: new Pagination(),
-      connection: new Connection(),
     }),
     {
       name: 'todo-storage',

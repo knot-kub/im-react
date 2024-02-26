@@ -1,10 +1,14 @@
-/* eslint-disable @next/next/no-img-element */
-"use client";
+'use client'
 
 import { useTodo } from '@/hooks/useTodo'
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 export default function Home() {
+  const [domLoaded, setDomLoaded] = useState(false);
+
+  useEffect(() => {
+    setDomLoaded(true);
+  }, []);
   
   const { 
     currentStatus,
@@ -14,7 +18,9 @@ export default function Home() {
     modalState: [showModal, setShowModal],
     onDelete,
     observerTarget,
-    connection,
+    isLoading,
+    getProfile,
+    onLogout,
   } = useTodo()
 
   const StatusSelection = useMemo(() => {
@@ -75,14 +81,15 @@ export default function Home() {
   }
 
   const Loading = useMemo(() => {
-    return <div className="flex justify-center"><div
-      className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] text-primary motion-reduce:animate-[spin_1.5s_linear_infinite]"
-      role="status">
-      <span
-        className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
-      >Loading...</span>
-    </div></div>
-  }, [])
+    return (isLoading && <div className="flex justify-center"><div
+        className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue border-r-transparent align-[-0.125em] text-primary motion-reduce:animate-[spin_1.5s_linear_infinite]"
+        role="status">
+        <span
+          className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+        >Loading...</span>
+      </div>
+    </div>)
+  }, [isLoading])
 
   const TodoList = useMemo(() => {
     const list = Object.keys(groupTodo).map((key) => {
@@ -121,86 +128,94 @@ export default function Home() {
     return <>
       {list}
       <div ref={observerTarget}></div>
-      {connection.loading && Loading}
+      {Loading}
     </>
-  }, [groupTodo, connection.loading])
+  }, [groupTodo, isLoading])
+
+  const name = useMemo(() => getProfile()?.name || '', [getProfile()?.name])
 
   return (
-    <>
-      <div className="bg-indigo-400 h-screen px-5 py-8">
-        <div className="bg-white h-full rounded-lg overflow-hidden flex flex-col">
-          <div className="bg-indigo-100 rounded-lg px-3 py-6 mb-12">
-            <div className="flex justify-end">
-              <img
-                className="inline-block h-10 w-10 rounded-full"
-                src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                alt="avatar"
-              />
+    <> {domLoaded && (
+      <>
+        <div className="bg-indigo-400 h-screen px-5 py-8">
+          <div className="bg-white h-full rounded-lg overflow-hidden flex flex-col">
+            <div className="bg-indigo-100 rounded-lg px-3 py-6 mb-12">
+              <div className="flex justify-end">
+                <img
+                  className="inline-block h-10 w-10 rounded-full"
+                  src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                  alt="avatar"
+                />
+              </div>
+              <div className="flex justify-end" onClick={onLogout}>
+                <button className="text-indigo-400 text-bold">Logout</button>
+              </div>
+              <div className="flex-col ps-5 text-gray-500 font-bold pb-10">
+                <h1>Hi! {name}</h1>
+                <h3>This is just a sample UI.</h3>
+                <h3>Open to create your style :D</h3>
+              </div>
+              {StatusSelection}
             </div>
-            <div className="flex-col ps-5 text-gray-500 font-bold pb-10">
-              <h1>Hi! User</h1>
-              <h3>This is just a sample UI.</h3>
-              <h3>Open to create your style :D</h3>
+            <div className="overflow-y-scroll h-full pb-6">
+              {TodoList}
             </div>
-            {StatusSelection}
-          </div>
-          <div className="overflow-y-scroll h-full pb-6">
-            {TodoList}
           </div>
         </div>
-      </div>
-      {showModal ? (
-        <>
-          <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
-            <div className="relative w-auto my-6 mx-auto max-w-3xl">
-              {/*content*/}
-              <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
-                {/*header*/}
-                <div className="flex items-start justify-between p-5 border-b border-solid border-blueGray-200 rounded-t">
-                  <h5 className="text-xl font-medium leading-normal text-black">
-                    Delete
-                  </h5>
-                  <button
-                    className="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
-                    onClick={() => setShowModal(false)}
-                  >
-                    <span className="bg-transparent text-black opacity-5 h-6 w-6 text-2xl block outline-none focus:outline-none">
-                      ×
-                    </span>
-                  </button>
-                </div>
-                {/*body*/}
-                <div className="relative p-6 flex-auto">
-                  <p className="my-4 text-gray-800 text-lg">
-                  Are you sure you want to delete?
-                  </p>
-                </div>
-                {/*footer*/}
-                <div className="flex items-center justify-between p-6 border-t border-solid border-blueGray-200 rounded-b">
-                  <button
-                    className="bg-gray-100 text-blue-400 active:bg-gray-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                  >
-                    CANCEL
-                  </button>
-                  <button
-                    className="bg-red-400 text-white active:bg-red-800 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                    type="button"
-                    onClick={() => {
-                      onDelete();
-                      setShowModal(false);
-                    }}
-                  >
-                    DELETE
-                  </button>
+        {showModal && (
+          <>
+            <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
+              <div className="relative w-auto my-6 mx-auto max-w-3xl">
+                {/*content*/}
+                <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
+                  {/*header*/}
+                  <div className="flex items-start justify-between p-5 border-b border-solid border-blueGray-200 rounded-t">
+                    <h5 className="text-xl font-medium leading-normal text-black">
+                      Delete
+                    </h5>
+                    <button
+                      className="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
+                      onClick={() => setShowModal(false)}
+                    >
+                      <span className="bg-transparent text-black opacity-5 h-6 w-6 text-2xl block outline-none focus:outline-none">
+                        ×
+                      </span>
+                    </button>
+                  </div>
+                  {/*body*/}
+                  <div className="relative p-6 flex-auto">
+                    <p className="my-4 text-gray-800 text-lg">
+                    Are you sure you want to delete?
+                    </p>
+                  </div>
+                  {/*footer*/}
+                  <div className="flex items-center justify-between p-6 border-t border-solid border-blueGray-200 rounded-b">
+                    <button
+                      className="bg-gray-100 text-blue-400 active:bg-gray-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                      type="button"
+                      onClick={() => setShowModal(false)}
+                    >
+                      CANCEL
+                    </button>
+                    <button
+                      className="bg-red-400 text-white active:bg-red-800 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                      type="button"
+                      onClick={() => {
+                        onDelete();
+                        setShowModal(false);
+                      }}
+                    >
+                      DELETE
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
-        </>
-      ) : null}
+            <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
+          </>
+        )}
+      </>
+    )}
     </>
   );
 }
